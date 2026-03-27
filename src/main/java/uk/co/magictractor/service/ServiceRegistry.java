@@ -17,12 +17,10 @@ package uk.co.magictractor.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Iterables;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +83,8 @@ public final class ServiceRegistry {
     @SuppressWarnings("unchecked")
     private static <INTERFACE, IMPLEMENTATION extends INTERFACE> Class<INTERFACE> findServiceInterface(
             Class<IMPLEMENTATION> serviceImplementationType) {
-        Set<Class<?>> interfaces = new HashSet<>();
+        // Use TreeSet so that
+        TreeSet<Class<?>> interfaces = new TreeSet<>();
         addServiceInterfaces(interfaces, serviceImplementationType);
 
         if (interfaces.isEmpty()) {
@@ -93,11 +92,12 @@ public final class ServiceRegistry {
                 "Service interface not found for implementation: " + serviceImplementationType.getName());
         }
 
-        //        if (interfaces.size() > 1) {
-        //            throw new IllegalStateException();
-        //        }
+        if (interfaces.size() > 1) {
+            throw new IllegalArgumentException(
+                "Multiple service interfaces  found for implementation: " + serviceImplementationType.getName());
+        }
 
-        return (Class<INTERFACE>) Iterables.getOnlyElement(interfaces);
+        return (Class<INTERFACE>) interfaces.first();
     }
 
     private static <IMPLEMENTATION> void addServiceInterfaces(Set<Class<?>> interfaces, Class<?> serviceImplementationType) {
