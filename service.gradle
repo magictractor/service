@@ -83,10 +83,19 @@ clean {
 
 // "libs.xxx" refers to libraries configured in version catalog in settings.gradle.
 dependencies {
+    // Logger API.
+    implementation libs.slf4j.api
+    // Logger implementation for unit tests.
+    runtimeOnly libs.logback.classic
 
+    // TODO! remove this (one use of Iterables)
     implementation libs.guava
     
-    testImplementation libs.junit.jupiter;
+    // For ExceptionUtil
+    implementation 'uk.co.magictractor:util:0.0.1-SNAPSHOT'
+    
+    // Usually testImplementation scope but JUnit is used in src/main/java, see the junit package.
+    compileOnly libs.junit.jupiter;
     testRuntimeOnly libs.junit.jupiter.platform;
     testImplementation libs.assertj;
     
