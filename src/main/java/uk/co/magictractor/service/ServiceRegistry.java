@@ -16,13 +16,12 @@
 package uk.co.magictractor.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Iterables;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +44,8 @@ import uk.co.magictractor.util.exception.ExceptionUtil.RunnableWithException;
 public final class ServiceRegistry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceRegistry.class);
+
+    private static final Comparator<Class> COMPARATOR_CLASS_NAME = Comparator.comparing(Class::getName);
 
     // Keyed by class name.
     private static Map<String, Object> SERVICE_IMPLEMENTATIONS = new HashMap<>();
@@ -85,7 +86,8 @@ public final class ServiceRegistry {
     @SuppressWarnings("unchecked")
     private static <INTERFACE, IMPLEMENTATION extends INTERFACE> Class<INTERFACE> findServiceInterface(
             Class<IMPLEMENTATION> serviceImplementationType) {
-        Set<Class<?>> interfaces = new HashSet<>();
+        // Use TreeSet so that class names are consistently ordered in error messages. Gives the first() method too.
+        TreeSet<Class<?>> interfaces = new TreeSet<>(COMPARATOR_CLASS_NAME);
         addServiceInterfaces(interfaces, serviceImplementationType);
 
         if (interfaces.isEmpty()) {
@@ -93,11 +95,12 @@ public final class ServiceRegistry {
                 "Service interface not found for implementation: " + serviceImplementationType.getName());
         }
 
-        //        if (interfaces.size() > 1) {
-        //            throw new IllegalStateException();
-        //        }
+        if (interfaces.size() > 1) {
+            throw new IllegalArgumentException(
+                "Multiple service interfaces  found for implementation: " + serviceImplementationType.getName());
+        }
 
-        return (Class<INTERFACE>) Iterables.getOnlyElement(interfaces);
+        return (Class<INTERFACE>) interfaces.first();
     }
 
     private static <IMPLEMENTATION> void addServiceInterfaces(Set<Class<?>> interfaces, Class<?> serviceImplementationType) {

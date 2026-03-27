@@ -88,9 +88,6 @@ dependencies {
     // Logger implementation for unit tests.
     runtimeOnly libs.logback.classic
 
-    // TODO! remove this (one use of Iterables)
-    implementation libs.guava
-    
     // For ExceptionUtil
     implementation 'uk.co.magictractor:util:0.0.1-SNAPSHOT'
     
