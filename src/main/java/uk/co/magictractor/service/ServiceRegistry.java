@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.co.magictractor.util.exception.ExceptionUtil;
-import uk.co.magictractor.util.exception.ExceptionUtil.RunnableWithException;
+import uk.co.magictractor.util.exception.ExceptionUtil.RunnableWithThrowable;
 
 /**
  * <p>
@@ -57,13 +57,12 @@ public final class ServiceRegistry {
     }
 
     public static <INTERFACE, IMPLEMENTATION extends INTERFACE> void runWithSiblingServices(
-            Class<IMPLEMENTATION> serviceImplementationType, RunnableWithException<?> runnable) {
+            Class<IMPLEMENTATION> serviceImplementationType, RunnableWithThrowable runnable) {
         String servicePrefix = determineClassNamePrefix(serviceImplementationType);
         runWithSiblingServices(servicePrefix, runnable);
     }
 
-    public static <IMPLEMENTATION> void runWithSiblingServices(
-            String implPackage, RunnableWithException<?> runnable) {
+    public static <IMPLEMENTATION> void runWithSiblingServices(String implPackage, RunnableWithThrowable runnable) {
 
         String previousPrefix = implementationPackage;
 
