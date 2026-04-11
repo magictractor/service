@@ -15,6 +15,7 @@
  */
 package uk.co.magictractor.service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,6 +44,18 @@ public interface HasNameService<ELEMENT extends HasName> extends SearchableServi
         }
 
         return Optional.ofNullable(findOnly("name", name, candidate -> name.equals(candidate.getName()), true));
+    }
+
+    public default List<ELEMENT> findAllByName(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("name must not be null");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("name must not be empty");
+        }
+
+        // TODO! should findAll() also have a flag to allow empty response?
+        return findAll("name", name, candidate -> name.equals(candidate.getName()));
     }
 
 }

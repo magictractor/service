@@ -66,6 +66,8 @@ test {
 }
 
 java {
+    sourceSets.main.java.srcDirs += ['../util/src/main/java']
+
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
     
@@ -89,11 +91,13 @@ dependencies {
     runtimeOnly libs.logback.classic
 
     // For ExceptionUtil
-    implementation 'uk.co.magictractor:util:0.0.1-SNAPSHOT'
+    //implementation 'uk.co.magictractor:util:0.0.1-SNAPSHOT'
     
     // Usually testImplementation scope but JUnit is used in src/main/java, see the junit package.
     compileOnly libs.junit.jupiter;
     testRuntimeOnly libs.junit.jupiter.platform;
     testImplementation libs.assertj;
     
+    // temp while importing source
+    implementation libs.guava
 }
