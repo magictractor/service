@@ -90,8 +90,11 @@ public final class ServiceRegistry {
         addServiceInterfaces(interfaces, serviceImplementationType);
 
         if (interfaces.isEmpty()) {
-            throw new IllegalArgumentException(
-                "Service interface not found for implementation: " + serviceImplementationType.getName());
+            // throw new IllegalArgumentException(
+            //     "Service interface not found for implementation: " + serviceImplementationType.getName());
+            // Allowed now for auxilliary services used by another service implementation
+            // Maybe log?
+            return null;
         }
 
         if (interfaces.size() > 1) {
@@ -105,10 +108,10 @@ public final class ServiceRegistry {
     private static <IMPLEMENTATION> void addServiceInterfaces(Set<Class<?>> interfaces, Class<?> serviceImplementationType) {
 
         for (Class<?> candidate : serviceImplementationType.getInterfaces()) {
-            if (candidate.getSimpleName().startsWith("Has")) {
-                throw new IllegalStateException(
-                    "Implementation classes should not implement Has interfaces directly. Service interfaces should extend the Has interfaces. Remove Has interfaces from "
-                            + serviceImplementationType.getSimpleName());
+            if (candidate.getSimpleName().startsWith("Has") && Character.isUpperCase(candidate.getSimpleName().charAt(3))) {
+                // Allowed now. For example, some implementations might use a
+                // HasPrimaryKeyService interface that does not belong on a common interface.
+                break;
             }
 
             if (SearchableService.class.isAssignableFrom(candidate)
@@ -125,7 +128,12 @@ public final class ServiceRegistry {
     private static <IMPLEMENTATION> String determineClassNamePrefix(
             Class<IMPLEMENTATION> serviceImplementationType) {
 
-        String interfaceName = findServiceInterface(serviceImplementationType).getSimpleName();
+        Class<IMPLEMENTATION> serviceInterface = findServiceInterface(serviceImplementationType);
+        if (serviceInterface == null) {
+            return null;
+        }
+        String interfaceName = serviceInterface.getSimpleName();
+
         String implementationFullName = serviceImplementationType.getName();
         if (!implementationFullName.endsWith(interfaceName)) {
             throw new IllegalArgumentException("Expected service implementation name "
@@ -161,7 +169,7 @@ public final class ServiceRegistry {
 
     public static <IMPLEMENTATION> IMPLEMENTATION getOrCreateImplementation(Class<IMPLEMENTATION> serviceImplementationType) {
         if (serviceImplementationType.isInterface()) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Parameter must be a concrete implementation of a service, not an interface");
         }
         return getOrCreateImplementation(serviceImplementationType.getName());
     }

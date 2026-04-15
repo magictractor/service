@@ -38,6 +38,7 @@ public abstract class AbstractSearchableService<ELEMENT> implements SearchableSe
         if (listAllCache == null) {
             synchronized (this) {
                 if (listAllCache == null) {
+                    // ServiceRegistry is used so that Refs are initialised with an appropriate service implementation.
                     ServiceRegistry.runWithSiblingServices(getClass(), () -> {
                         listAllCache = readAll();
                     });
