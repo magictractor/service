@@ -28,8 +28,10 @@ public abstract class AbstractRef<KEY, ELEMENT, SERVICE extends SearchableServic
     private final RefResolver<KEY, ELEMENT, SERVICE> resolver;
     private ELEMENT element;
 
-    protected AbstractRef(Class<SERVICE> serviceInterface, RefResolver<KEY, ELEMENT, SERVICE> resolver) {
-        this.service = ServiceRegistry.getOrCreate(serviceInterface);
+    // serviceType is usually an interface, but can be a concrete implementation used when there are
+    // implementation specific refs such as primary keys that are not applicable elsewhere.
+    protected AbstractRef(Class<SERVICE> serviceType, RefResolver<KEY, ELEMENT, SERVICE> resolver) {
+        this.service = serviceType.isInterface() ? ServiceRegistry.getOrCreate(serviceType) : ServiceRegistry.getOrCreateImplementation(serviceType);
         this.resolver = resolver;
     }
 
