@@ -54,14 +54,43 @@ public abstract class AbstractSearchableService<ELEMENT> implements SearchableSe
         if (listCache == null) {
             synchronized (this) {
                 if (listCache == null) {
-                    listCache = listAll().stream()
+                    List<ELEMENT> list = listAll().stream()
                             .filter(this::includeInList)
                             .collect(Collectors.toList());
+                    initList(list);
+                    listCache = list;
                 }
             }
         }
 
         return listCache;
+    }
+
+    /**
+     * <p>
+     * Initialise the {@code List} that will be returned by {@link #list()}. The
+     * default implementation does nothing.
+     * </p>
+     * <p>
+     * An overrride might be useful if {@link #includeInList()} has been
+     * overridden; otherwise {@code list()} and {@code listAll()} will return
+     * the same values and initialisation of the {@code List} can be done in
+     * {@link #readAll()}.
+     * <p>
+     * <p>
+     * Values should not be added to or removed from the {@code List}, if the
+     * elements are incorrect then the implementation of {@code readAll()}
+     * and/or {@code #includeInList()} should be adjusted. Anticipated
+     * behaviours in overrides include sorting the {@code List} and modifying
+     * elements in the {@code List}.
+     * </p>
+     *
+     * @param list a {@code List} created from the values in
+     *        {@code readAll()}/{@code listAll()} filtered by
+     *        {@code #includeInList()}
+     */
+    protected void initList(List<ELEMENT> list) {
+        // Do nothing. Designed for override.
     }
 
     @Override
