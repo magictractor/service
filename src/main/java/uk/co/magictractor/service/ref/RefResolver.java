@@ -15,12 +15,10 @@
  */
 package uk.co.magictractor.service.ref;
 
-import uk.co.magictractor.service.SearchableService;
-
 /**
  *
  */
-public interface RefResolver<KEY, ELEMENT, SERVICE extends SearchableService<ELEMENT>> {
+public interface RefResolver<KEY, ELEMENT, SERVICE> {
 
     KEY getKey();
 

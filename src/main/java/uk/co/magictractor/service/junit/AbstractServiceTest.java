@@ -19,11 +19,10 @@ import java.util.Set;
 
 import org.opentest4j.TestAbortedException;
 
-import uk.co.magictractor.service.SearchableService;
 import uk.co.magictractor.service.ServiceRegistry;
 import uk.co.magictractor.service.feature.Features;
 
-public class AbstractServiceTest<SERVICE extends SearchableService<?>> {
+public class AbstractServiceTest<SERVICE> {
 
     private final SERVICE service;
     private final Set<String> unsupportedFeatures;

@@ -18,13 +18,12 @@ package uk.co.magictractor.service.ref;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import uk.co.magictractor.service.SearchableService;
 import uk.co.magictractor.service.ServiceRegistry;
 
 /**
  *
  */
-public abstract class AbstractListRef<KEY, ELEMENT, SERVICE extends SearchableService<ELEMENT>>
+public abstract class AbstractListRef<KEY, ELEMENT, SERVICE>
         implements ListRef<List<KEY>, ELEMENT> {
 
     private final SERVICE service;
