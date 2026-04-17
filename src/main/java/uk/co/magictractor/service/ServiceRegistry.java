@@ -56,6 +56,8 @@ public final class ServiceRegistry {
     private ServiceRegistry() {
     }
 
+    // TODO! add CallableWithThrowable variants? See PokemonZoneCardOnwershipService.
+
     public static <INTERFACE, IMPLEMENTATION extends INTERFACE> void runWithSiblingServices(
             Class<IMPLEMENTATION> serviceImplementationType, RunnableWithThrowable runnable) {
         String servicePrefix = determineClassNamePrefix(serviceImplementationType);
@@ -91,9 +93,14 @@ public final class ServiceRegistry {
 
         if (interfaces.isEmpty()) {
             // throw new IllegalArgumentException(
-            //     "Service interface not found for implementation: " + serviceImplementationType.getName());
+            //    "Service interface not found for implementation: " + serviceImplementationType.getName());
             // Allowed now for auxilliary services used by another service implementation
-            // Maybe log?
+            // so a common interface is not useful.
+            // But this causes a problem with Refs. Worked around by explicitly using ServiceRegistry.runWithSiblingServices()
+            // in the readAll() method of the auxilliary service.
+            // Revisit sometime.
+            // See PokemonZoneCardOwnershipService.
+            LOGGER.warn("Service interface not found for implementation: " + serviceImplementationType.getName());
             return null;
         }
 
