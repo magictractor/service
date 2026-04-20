@@ -93,6 +93,9 @@ dependencies {
     // For ExceptionUtil
     //implementation 'uk.co.magictractor:util:0.0.1-SNAPSHOT'
     
+    // For RefTypeAdapter
+    compileOnly("com.google.code.gson:gson:2.13.2")
+    
     // Usually testImplementation scope but JUnit is used in src/main/java, see the junit package.
     compileOnly libs.junit.jupiter;
     testRuntimeOnly libs.junit.jupiter.platform;
