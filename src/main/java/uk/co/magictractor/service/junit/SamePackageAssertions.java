@@ -16,7 +16,6 @@
 package uk.co.magictractor.service.junit;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -42,18 +41,18 @@ public final class SamePackageAssertions {
         assertGetterValuesAreInSamePackage(object, (method) -> false);
     }
 
-    public static void assertGetterValuesAreInSamePackage(Object object, Predicate<Method> excludeMethods) {
+    public static void assertGetterValuesAreInSamePackage(Object object, Predicate<Class<?>> isValueTypePermittedPredicate) {
         StringBuilder failBuilder = new StringBuilder();
 
-        assertGetterValuesAreInSamePackage(failBuilder, "", object, excludeMethods);
+        assertGetterValuesAreInSamePackage(failBuilder, "", object, isValueTypePermittedPredicate);
 
         if (failBuilder.length() != 0) {
             fail("Objects returned from getters are not in the same package as the base Object:" + object.getClass().getName() + "\n" + failBuilder.toString());
         }
     }
 
-    private static void assertGetterValuesAreInSamePackage(StringBuilder failBuilder, String context, Object object, Predicate<Method> excludeMethods) {
-        List<Method> methods = findGetterMethods(object, excludeMethods);
+    private static void assertGetterValuesAreInSamePackage(StringBuilder failBuilder, String context, Object object, Predicate<Class<?>> isValueTypePermittedPredicate) {
+        List<Method> methods = findGetterMethods(object, isValueTypePermittedPredicate);
 
         for (Method method : methods) {
             Object other;
@@ -67,7 +66,10 @@ public final class SamePackageAssertions {
             if (other instanceof List) {
                 List<?> otherList = (List<?>) other;
                 for (int i = 0; i < otherList.size(); i++) {
-                    checkAndAppendFailures(failBuilder, method.getName() + "().get(" + i + ")", object, otherList.get(i));
+                    Object value = otherList.get(i);
+                    if (!ignoreType(value.getClass(), isValueTypePermittedPredicate)) {
+                        checkAndAppendFailures(failBuilder, method.getName() + "().get(" + i + ")", object, value);
+                    }
                 }
             }
             else {
@@ -79,21 +81,25 @@ public final class SamePackageAssertions {
 
     /** Find public methods with no args that return a non-primitive value. */
     // TODO! apply the predicate to filter some methods
-    private static List<Method> findGetterMethods(Object object, Predicate<Method> excludeMethods) {
+    private static List<Method> findGetterMethods(Object object, Predicate<Class<?>> isValueTypePermittedPredicate) {
         List<Method> result = new ArrayList<>();
         for (Method candidate : object.getClass().getMethods()) {
             if (candidate.getParameterCount() == 0
-                    && !candidate.getReturnType().isPrimitive()
-                    && !candidate.getReturnType().isEnum()
-                    // String, Integer etc.
-                    && !candidate.getReturnType().getName().startsWith("java.lang.")
-                    // A final class with no interfaces cannot have an alternative implementation.
-                    && (!Modifier.isFinal(candidate.getReturnType().getModifiers()) || candidate.getReturnType().getInterfaces().length > 0)) {
+                    && !ignoreType(candidate.getReturnType(), isValueTypePermittedPredicate)) {
                 result.add(candidate);
             }
         }
 
         return result;
+    }
+
+    private static boolean ignoreType(Class<?> type, Predicate<Class<?>> isValueTypePermittedPredicate) {
+        return type.isPrimitive()
+                || type.isEnum()
+                // String, Integer etc.
+                || type.getName().startsWith("java.lang.")
+                // Explicitly permitted.
+                || isValueTypePermittedPredicate.test(type);
     }
 
     private static boolean checkAndAppendFailures(StringBuilder failBuilder, String context, Object object, Object other) {
@@ -133,12 +139,8 @@ public final class SamePackageAssertions {
 
     private static boolean areInSamePackage(Object object1, Object object2) {
         if (object1 == null) {
-            throw new IllegalStateException();
+            return object2 == null;
         }
-
-        //        if (object1 == null || object2 == null) {
-        //            return object1 == object2;
-        //        }
         if (object2 == null) {
             return false;
         }
