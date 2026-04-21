@@ -15,6 +15,7 @@
  */
 package uk.co.magictractor.service;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,10 +105,7 @@ public abstract class AbstractSearchableService<ELEMENT> implements SearchableSe
         // TODO! cache errors too?
         ELEMENT result = null;
         if (found.isEmpty()) {
-            if (!allowNotFound) {
-                throw new IllegalArgumentException("No value found for key \"" + cacheKey + "\" in cache \"" + cacheName
-                        + "\" of service " + getClass().getSimpleName());
-            }
+            notFound(allowNotFound, cacheName, cacheKey);
         }
         else if (found.size() > 1) {
             throw new IllegalArgumentException(
@@ -125,16 +123,30 @@ public abstract class AbstractSearchableService<ELEMENT> implements SearchableSe
     }
 
     @Override
-    public List<ELEMENT> findAll(String cacheName, Object cacheKey, Predicate<ELEMENT> matcher) {
+    public List<ELEMENT> findAll(String cacheName, Object cacheKey, Predicate<ELEMENT> matcher, boolean allowNotFound, Comparator<ELEMENT> comparator) {
         Map<Object, List<ELEMENT>> cache = findAllCaches.computeIfAbsent(cacheName, key -> new HashMap<>());
         if (cache.containsKey(cacheKey)) {
             return cache.get(cacheKey);
         }
 
         List<ELEMENT> result = findAll0(matcher);
+        if (comparator != null) {
+            result.sort(comparator);
+        }
         cache.put(cacheKey, result);
 
+        if (result.isEmpty()) {
+            notFound(allowNotFound, cacheName, cacheKey);
+        }
+
         return result;
+    }
+
+    private void notFound(boolean allowNotFound, String cacheName, Object cacheKey) {
+        if (!allowNotFound) {
+            throw new IllegalArgumentException("No value found for key \"" + cacheKey + "\" in cache \"" + cacheName
+                    + "\" of service " + getClass().getSimpleName());
+        }
     }
 
     private List<ELEMENT> findAll0(Predicate<ELEMENT> matcher) {

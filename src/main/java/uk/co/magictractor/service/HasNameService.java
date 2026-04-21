@@ -54,8 +54,7 @@ public interface HasNameService<ELEMENT extends HasName> extends SearchableServi
             throw new IllegalArgumentException("name must not be empty");
         }
 
-        // TODO! should findAll() also have a flag to allow empty response?
-        return findAll("name", name, candidate -> name.equals(candidate.getName()));
+        return findAll("name", name, candidate -> name.equals(candidate.getName()), false);
     }
 
 }

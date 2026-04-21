@@ -15,6 +15,7 @@
  */
 package uk.co.magictractor.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -58,6 +59,15 @@ public interface SearchableService<ELEMENT> {
 
     ELEMENT findOnly(String cacheName, Object cacheKey, Predicate<ELEMENT> matcher, boolean allowNotFound);
 
-    List<ELEMENT> findAll(String cacheName, Object cacheKey, Predicate<ELEMENT> matcher);
+    @Deprecated
+    default List<ELEMENT> findAll(String cacheName, Object cacheKey, Predicate<ELEMENT> matcher) {
+        return findAll(cacheName, cacheKey, matcher, true, null);
+    }
+
+    default List<ELEMENT> findAll(String cacheName, Object cacheKey, Predicate<ELEMENT> matcher, boolean allowNotFound) {
+        return findAll(cacheName, cacheKey, matcher, allowNotFound, null);
+    }
+
+    List<ELEMENT> findAll(String cacheName, Object cacheKey, Predicate<ELEMENT> matcher, boolean allowNotFound, Comparator<ELEMENT> sorter);
 
 }
