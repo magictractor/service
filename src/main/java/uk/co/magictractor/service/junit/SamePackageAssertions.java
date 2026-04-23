@@ -47,7 +47,7 @@ public final class SamePackageAssertions {
         assertGetterValuesAreInSamePackage(failBuilder, "", object, isValueTypePermittedPredicate);
 
         if (failBuilder.length() != 0) {
-            fail("Objects returned from getters are not in the same package as the base Object:" + object.getClass().getName() + "\n" + failBuilder.toString());
+            fail("Objects returned from getters are not in the same package as the base object: " + object.getClass().getName() + "\n" + failBuilder.toString());
         }
     }
 
