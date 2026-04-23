@@ -52,10 +52,14 @@ publishing {
 // https://docs.gradle.org/current/userguide/declaring_repositories.html
 repositories {
     // mavenLocal() for snapshots of other uk.co.magictractor projects
-    // Alternatively, other uk.co.magictractor projects may be included by
-    // adding their source directory to sourceSets.main.java.srcDirs.
-    // The other projects should include the maven-publish plugin and use the publishToMavenLocal task.
+    //
+    // The other projects should include the maven-publish plugin and use
+    // the publishToMavenLocal task.
     // See https://docs.gradle.org/current/userguide/publishing_maven.html.
+    //
+    // Alternatively, dependencies on the source of other projects may be
+    // created by adding includesBuild entries to settings.local.gradle.
+    // See notes beside the magictractor.co.uk dependency declarations below.
     mavenLocal()
 
     mavenCentral()
@@ -66,8 +70,6 @@ test {
 }
 
 java {
-    sourceSets.main.java.srcDirs += ['../util/src/main/java']
-
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
     
@@ -95,12 +97,19 @@ dependencies {
     
     // For RefTypeAdapter
     compileOnly("com.google.code.gson:gson:2.13.2")
+
+    // Only used for Splitter in RefTypeAdapter - consider removing the dependency
+    implementation libs.guava
+    
+    // Local source may be used instead of a jar.
+    // To do so:
+    // 1. edit settings.local.gradle and add "includeBuild '../util' etc
+    // 2. open the sibling project containing the source
+    // 3. Run Refresh Gradle project on this project
+    implementation('uk.co.magictractor:util:0.0.1-SNAPSHOT')
     
     // Usually testImplementation scope but JUnit is used in src/main/java, see the junit package.
     compileOnly libs.junit.jupiter;
     testRuntimeOnly libs.junit.jupiter.platform;
     testImplementation libs.assertj;
-    
-    // temp while importing source
-    implementation libs.guava
 }
